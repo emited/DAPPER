@@ -21,8 +21,8 @@ if CtrlVar == 'Q': # Var of stoch error
   set_true  = lambda X: setattr(setup.f.noise,'C',CovMat(X*ones(setup.f.m)))
   set_false = lambda X: setattr(setup.f.noise,'C',0)
   xticks    = round2sigfig(LogSp(1e-6,1e2,40),nfig=2)
-  #xtics    = [1e-6, 1e-3, 0.1, 1]
-  #xtics    = [min(xticks, key=lambda x:abs(x-0.01))]
+  #xticks    = [1e-6, 1e-3, 0.1, 1]
+  #xticks    = [min(xticks, key=lambda x:abs(x-0.01))]
 
 elif CtrlVar == 'FDA': # Forcing erroneously assumed by DA
   set_true  = lambda X: setattr(L63,'sig',10)
@@ -59,7 +59,7 @@ cfgs += EnKF_N(N=80, name='FULL', rot=True)
 # ADAPTIVE INFLATION METHODS
 for N in [3]:
   cfgs += EAKF_A07     (N=N,           var_f=1e-2           )
-  cfgs += ETKF_Xplct   (N=N, L=None,    nu_f=1e3, infl=1.015)
+  cfgs += ETKF_Xplct   (N=N, L=None,    nu_f=1e3            )
   cfgs += EnKF_N_Xplct (N=N, L=None,    nu_f=1e4, Cond=False)
 
 

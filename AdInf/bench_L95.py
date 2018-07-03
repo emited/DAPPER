@@ -61,7 +61,7 @@ cfgs += EnKF_N(N=80, name='FULL', rot=True)
 # ADAPTIVE INFLATION METHODS
 for N in [20]:
   cfgs += EAKF_A07     (N=N,           var_f=1e-2           )
-  cfgs += ETKF_Xplct   (N=N, L=None,    nu_f=1e3, infl=1.015)
+  cfgs += ETKF_Xplct   (N=N, L=None,    nu_f=1e3            )
   cfgs += EnKF_N_Xplct (N=N, L=None,    nu_f=1e4, Cond=False)
 
 
