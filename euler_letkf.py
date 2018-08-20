@@ -20,9 +20,11 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 
 def plot_vel(xd):
+	plt.axis('off')
 	plt.imshow(flowlib.flow_to_image(xd.reshape(64, 64, 3)[:, :, 1:]))
 
 def plot_density(xd, min=None, max=None):
+	plt.axis('off')
 	plt.imshow(xd.reshape(64, 64, 3)[:, :, 0], vmin=min, vmax=max)
 
 def simulate_without_sample(setup,desc='Truth & Obs'):
@@ -50,7 +52,7 @@ config = EnKF('Sqrt', N=5, infl=1.02, rot=True, liveplotting=True)
 # config = LETKF(N=25,rot=True,infl=1.04,loc_rad=10,taper='Gauss') # 0.6
 
 # Simulate synthetic truth (xxd) and noisy obs (yyd)
-xxd,yyd = simulate_without_sample(setup)
+xxd, yyd = simulate_without_sample(setup)
 xxs, yys = simulate(setup)
 
 # Assimilate yyd (knowing the twin setup). Assess vis-a-vis xxd.
@@ -58,28 +60,43 @@ stats = config.assimilate(setup,xxd,yys)
 
 print('\n\n', stats.mu.__dict__ ,'\n\n')
 
-nplots = 4
+
+plt.subplot(2, 2, 1)
+plt.title('xd')
+plot_density(xxd[0])
+plt.subplot(2, 2, 3)
+plot_vel(xxd[0])
+plt.subplot(2, 2, 2)
+plt.title('xs')
+plot_density(xxs[0])
+plt.subplot(2, 2, 4)
+plot_vel(xxs[0])
+save_fn = 'mods/Euler/images/euler_letkf_{}.png'.format(0)
+print('saveing initial conditions to ' + save_fn)
+plt.savefig(save_fn)
+
 for t, (muf, mua, xd, xs) in enumerate(zip(stats.mu.f, stats.mu.a, xxd[1:], xxs[1:])):
 
-	ims = [
-		('mu.f', muf),
-		('mu.a', mua),
-		('xd', xd),
-		('xs', xs),
-	]
+	ims = {
+		'mu.f': muf,
+		'mu.a': mua,
+		'xd': xd,
+		'xs': xs,
+	}
 
-	mn = np.min([ims[k].reshape(64, 64, 3)[:, :, 0] for k in ims])
-	mx = np.max([ims[k].reshape(64, 64, 3)[:, :, 0] for k in ims])
+	mn = np.min([im.reshape(64, 64, 3)[:, :, 0] for im in ims.values()])
+	mx = np.max([im.reshape(64, 64, 3)[:, :, 0] for im in ims.values()])
 
-	for i, (k, v) in enumerate(ims):
-		plt.subplot(2, nplots, i + 1)
-		plt.title('{} {}'.format(k, t))
+	for i, (k, v) in enumerate(ims.items()):
+		plt.subplot(2, len(ims), i + 1)
+		plt.title('{} {}'.format(k, t + 1))
 		plot_density(v, min=mn, max=mx)
-		plt.subplot(2, nplots, i + nplots + 1)
+		plt.subplot(2, len(ims), i + len(ims) + 1)
 		plot_vel(v)
 
-	print('saving' + 'mods/Euler/images/euler_letkf_{}.png'.format(t))
-	plt.savefig('mods/Euler/images/euler_letkf_{}.png'.format(t))
+	save_fn = 'mods/Euler/images/euler_letkf_{}.png'.format(t + 1)
+	print('saving to ' + save_fn)
+	plt.savefig(save_fn)
 
 
 # np.sum(stats.mu.a - yyd)
